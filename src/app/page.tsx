@@ -98,6 +98,10 @@ export default function Home() {
     setPhase(Phase.GAME);
   };
 
+  const handleBackClick = () => {
+    setPhase(Phase.HOME);
+  };
+
   const handleCellClick = (cellRow: number, cellCol: number) => {
     setBoard((previousBoard: string[][]) => {
       return previousBoard.map((boardRow: string[], boardRowIndex: number) => {
@@ -120,11 +124,15 @@ export default function Home() {
     });
   };
 
-  const handleContinueClick = () => {
+  const resetGame = () => {
     setBoard(INITIAL_BOARD);
     setTurn(Turn.X);
     setCombination([]);
     setIsFinished(false);
+  };
+
+  const handleContinueClick = () => {
+    resetGame();
   };
 
   const handleStopClick = () => {
@@ -144,7 +152,7 @@ export default function Home() {
     setPlayers(INITIAL_PLAYERS);
     setScores(INITIAL_SCORES);
 
-    handleContinueClick();
+    resetGame();
   };
 
   return (
@@ -167,11 +175,27 @@ export default function Home() {
             <GameData />
           </>
         )}
-        {phase === Phase.FORM && <PlayerForm />}
+        {phase === Phase.FORM && (
+          <>
+            <PlayerForm />
+            <Button
+              onClick={handleBackClick}
+              className='w-[200px]'
+            >
+              Back to Home
+            </Button>
+          </>
+        )}
         {phase === Phase.GAME && (
           <>
             <Info />
             <Board />
+            <Button
+              onClick={handleBackClick}
+              className='w-[200px]'
+            >
+              Back to Home
+            </Button>
           </>
         )}
         {isFinished && (
