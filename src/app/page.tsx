@@ -12,7 +12,6 @@ import {
 import { TicTacToeContext } from '@/lib/contexts';
 import { Phase, Turn } from '@/lib/enums';
 import { useCreateGame } from '@/lib/hooks';
-import Confetti from '@/components/Confetti/Confetti';
 
 export default function Home() {
   const { mutate: createGame } = useCreateGame();
