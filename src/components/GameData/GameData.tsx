@@ -15,7 +15,7 @@ const GameData = () => {
     );
   }
 
-  if (games.length === 0) {
+  if (games?.length === 0) {
     return <p className='text-2xl'>No previous game data yet</p>;
   }
 

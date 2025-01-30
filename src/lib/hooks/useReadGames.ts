@@ -10,6 +10,7 @@ const useReadGames = () => {
 
       return await response.json();
     },
+    initialData: [],
   });
 };
 
