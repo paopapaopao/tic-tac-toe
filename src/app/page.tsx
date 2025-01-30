@@ -85,6 +85,13 @@ export default function Home() {
     }
   }, [isFinished, winner]);
 
+  const resetGame = () => {
+    setBoard(INITIAL_BOARD);
+    setTurn(Turn.X);
+    setCombination([]);
+    setIsFinished(false);
+  };
+
   const handleStartNewGameClick = () => {
     setPhase(Phase.FORM);
   };
@@ -99,6 +106,9 @@ export default function Home() {
   };
 
   const handleBackClick = () => {
+    setPlayers(INITIAL_PLAYERS);
+    setScores(INITIAL_SCORES);
+    resetGame();
     setPhase(Phase.HOME);
   };
 
@@ -122,13 +132,6 @@ export default function Home() {
     setTurn((previousTurn: Turn) => {
       return previousTurn === Turn.X ? Turn.O : Turn.X;
     });
-  };
-
-  const resetGame = () => {
-    setBoard(INITIAL_BOARD);
-    setTurn(Turn.X);
-    setCombination([]);
-    setIsFinished(false);
   };
 
   const handleContinueClick = () => {
@@ -190,6 +193,12 @@ export default function Home() {
           <>
             <Info />
             <Board />
+            {isFinished && (
+              <div className='flex gap-4'>
+                <Button onClick={handleContinueClick}>Continue</Button>
+                <Button onClick={handleStopClick}>Stop</Button>
+              </div>
+            )}
             <Button
               onClick={handleBackClick}
               className='min-w-[240px]'
@@ -197,12 +206,6 @@ export default function Home() {
               Back to Home
             </Button>
           </>
-        )}
-        {isFinished && (
-          <div className='flex gap-4'>
-            <Button onClick={handleContinueClick}>Continue</Button>
-            <Button onClick={handleStopClick}>Stop</Button>
-          </div>
         )}
       </div>
     </TicTacToeContext.Provider>
