@@ -1,101 +1,186 @@
-import Image from "next/image";
+'use client';
+
+import { useEffect, useState } from 'react';
+
+import { Board, Button, GameData, Info, PlayerForm } from '@/components';
+import {
+  INITIAL_BOARD,
+  INITIAL_PLAYERS,
+  INITIAL_SCORES,
+  WINNING_COMBINATIONS,
+} from '@/lib/constants';
+import { TicTacToeContext } from '@/lib/contexts';
+import { Phase, Turn } from '@/lib/enums';
+import { useCreateGame } from '@/lib/hooks';
 
 export default function Home() {
-  return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-semibold">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
+  const { mutate: createGame } = useCreateGame();
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:min-w-44"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
-        </div>
-      </main>
-      <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
-    </div>
+  const [phase, setPhase] = useState<Phase>(Phase.HOME);
+
+  const [players, setPlayers] = useState<{
+    x: string;
+    o: string;
+  }>(INITIAL_PLAYERS);
+
+  const [scores, setScores] = useState<{
+    x: number;
+    o: number;
+    draw: number;
+  }>(INITIAL_SCORES);
+
+  const [board, setBoard] = useState<string[][]>(INITIAL_BOARD);
+  const [turn, setTurn] = useState<Turn>(Turn.X);
+  const [combination, setCombination] = useState<number[][]>([]);
+  const [isFinished, setIsFinished] = useState<boolean>(false);
+
+  //
+  const winner =
+    combination.length === 0
+      ? null
+      : board[combination[0][0]][combination[0][1]];
+
+  useEffect(() => {
+    const hasWinner = WINNING_COMBINATIONS.some((combination: number[][]) => {
+      const [row1, col1] = combination[0];
+      const [row2, col2] = combination[1];
+      const [row3, col3] = combination[2];
+
+      if (
+        board[row1][col1] === board[row2][col2] &&
+        board[row1][col1] === board[row3][col3] &&
+        board[row1][col1] !== ''
+      ) {
+        setCombination(combination);
+
+        return true;
+      }
+
+      return false;
+    });
+
+    const hasFinished = board.every((row: string[]) => {
+      return row.every((col: string) => {
+        return col !== '';
+      });
+    });
+
+    if (hasWinner || hasFinished) {
+      setIsFinished(true);
+    }
+  }, [board]);
+
+  //
+  useEffect(() => {
+    if (isFinished) {
+      setScores((previousScores) => {
+        if (winner === null) {
+          return { ...previousScores, draw: previousScores.draw + 1 };
+        }
+
+        return winner === Turn.X
+          ? { ...previousScores, x: previousScores.x + 1 }
+          : { ...previousScores, o: previousScores.o + 1 };
+      });
+    }
+  }, [isFinished, winner]);
+
+  const handleStartNewGameClick = () => {
+    setPhase(Phase.FORM);
+  };
+
+  const handleSubmit = (formData: FormData) => {
+    setPlayers({
+      x: formData.get('x')?.toString() ?? '',
+      o: formData.get('o')?.toString() ?? '',
+    });
+
+    setPhase(Phase.GAME);
+  };
+
+  const handleCellClick = (cellRow: number, cellCol: number) => {
+    setBoard((previousBoard: string[][]) => {
+      return previousBoard.map((boardRow: string[], boardRowIndex: number) => {
+        if (boardRowIndex !== cellRow) {
+          return boardRow;
+        }
+
+        return boardRow.map((boardCol: string, boardColIndex: number) => {
+          if (boardColIndex !== cellCol) {
+            return boardCol;
+          }
+
+          return boardCol === '' ? turn : '';
+        });
+      });
+    });
+
+    setTurn((previousTurn: Turn) => {
+      return previousTurn === Turn.X ? Turn.O : Turn.X;
+    });
+  };
+
+  const handleContinueClick = () => {
+    setBoard(INITIAL_BOARD);
+    setTurn(Turn.X);
+    setCombination([]);
+    setIsFinished(false);
+  };
+
+  const handleStopClick = async () => {
+    createGame({
+      players: {
+        playerX: { name: players.x },
+        playerO: { name: players.o },
+      },
+      scores: {
+        playerX: scores.x,
+        playerO: scores.o,
+        draw: scores.draw,
+      },
+    });
+
+    setPhase(Phase.HOME);
+    setPlayers(INITIAL_PLAYERS);
+    setScores(INITIAL_SCORES);
+
+    handleContinueClick();
+  };
+
+  return (
+    <TicTacToeContext.Provider
+      value={{
+        board,
+        combination,
+        isFinished,
+        players,
+        scores,
+        onClick: handleCellClick,
+        onSubmit: handleSubmit,
+      }}
+    >
+      <div className='min-h-dvh p-8 flex flex-col items-center gap-8 justify-center'>
+        <h1 className='text-5xl'>Tic-Tac-Toe Game</h1>
+        {phase === Phase.HOME && (
+          <>
+            <Button onClick={handleStartNewGameClick}>Start New Game</Button>
+            <GameData />
+          </>
+        )}
+        {phase === Phase.FORM && <PlayerForm />}
+        {phase === Phase.GAME && (
+          <>
+            <Info />
+            <Board />
+          </>
+        )}
+        {isFinished && (
+          <div className='flex gap-4'>
+            <Button onClick={handleContinueClick}>Continue</Button>
+            <Button onClick={handleStopClick}>Stop</Button>
+          </div>
+        )}
+      </div>
+    </TicTacToeContext.Provider>
   );
 }
