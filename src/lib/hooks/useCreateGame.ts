@@ -2,13 +2,13 @@
 
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 
-import type { GameSchema } from '../types';
+import { GamePayload } from '../types';
 
 const useCreateGame = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (payload: GameSchema) => {
+    mutationFn: async (payload: GamePayload) => {
       const response = await fetch('/api/games', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },

@@ -127,7 +127,7 @@ export default function Home() {
     setIsFinished(false);
   };
 
-  const handleStopClick = async () => {
+  const handleStopClick = () => {
     createGame({
       players: {
         playerX: { name: players.x },

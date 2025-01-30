@@ -1,1 +1,1 @@
-export { type default as GameSchema } from './GameSchema';
+export { type default as GamePayload } from './GamePayload';
