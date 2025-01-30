@@ -1,6 +1,7 @@
 'use client';
 
 import { useReadGames } from '@/lib/hooks';
+import { IGame } from '@/lib/interfaces';
 import { dateFormatter } from '@/lib/utils';
 
 const GameData = () => {
@@ -18,7 +19,7 @@ const GameData = () => {
     return <p className='text-2xl'>No previous game data yet</p>;
   }
 
-  return games.map((game) => (
+  return games.map((game: IGame) => (
     <table
       key={game._id}
       className='min-w-[400px] border'
