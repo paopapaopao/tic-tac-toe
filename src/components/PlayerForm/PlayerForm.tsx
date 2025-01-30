@@ -8,7 +8,7 @@ const PlayerForm = () => {
   return (
     <form
       action={onSubmit}
-      className='flex flex-col gap-8'
+      className='min-w-[240px] flex flex-col gap-8'
     >
       <div className='flex flex-col gap-4'>
         <label className='font-bold'>Player 1</label>
